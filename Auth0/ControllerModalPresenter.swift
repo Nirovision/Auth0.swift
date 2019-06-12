@@ -22,13 +22,24 @@
 
 import UIKit
 
+struct Application {
+    static var shared: UIApplication {
+        let sharedSelector = NSSelectorFromString("sharedApplication")
+        guard UIApplication.responds(to: sharedSelector) else {
+            fatalError("[Extensions cannot access Application]")
+        }
+        let shared = UIApplication.perform(sharedSelector)
+        return shared?.takeUnretainedValue() as! UIApplication
+    }
+}
+
 struct ControllerModalPresenter {
 
     var rootViewController: UIViewController? {
         if #available(iOSApplicationExtension 9, *) {
             return nil
         } else {
-            return UIApplication.shared.keyWindow?.rootViewController
+            return Application.shared.keyWindow?.rootViewController
         }
     }
 
