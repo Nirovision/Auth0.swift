@@ -486,6 +486,7 @@ public protocol Authentication: Trackable, Loggable {
      - parameter connection: name of the connection to use
      - returns: a newly created WebAuth object.
      */
+    @available(iOSApplicationExtension, unavailable)
     func webAuth(withConnection connection: String) -> WebAuth
 #endif
 }
