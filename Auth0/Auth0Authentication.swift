@@ -217,6 +217,7 @@ struct Auth0Authentication: Authentication {
     }
 
     #if os(iOS)
+    @available(iOSApplicationExtension, unavailable)
     func webAuth(withConnection connection: String) -> WebAuth {
         let safari = SafariWebAuth(clientId: self.clientId, url: self.url, presenter: ControllerModalPresenter(), telemetry: self.telemetry)
         return safari

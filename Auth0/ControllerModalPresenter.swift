@@ -22,6 +22,7 @@
 
 import UIKit
 
+@available(iOSApplicationExtension, unavailable)
 struct ControllerModalPresenter {
 
     var rootViewController: UIViewController? {

@@ -47,10 +47,10 @@ Pod::Spec.new do |s|
   s.description      = <<-DESC
                         Auth0 API toolkit written in Swift for iOS, watchOS, tvOS & macOS apps
                         DESC
-  s.homepage         = 'https://github.com/auth0/Auth0.swift'
+  s.homepage         = 'https://github.com/Nirovision/Auth0.swift'
   s.license          = 'MIT'
   s.authors          = { "Auth0" => "support@auth0.com" }, { "Hernan Zalazar" => "hernan@auth0.com" }, { "Martin Walsh" => "martin.walsh@auth0.com" }
-  s.source           = { :git => 'https://github.com/auth0/Auth0.swift.git', :tag => s.version.to_s }
+  s.source           = { :git => 'https://github.com/Nirovision/Auth0.swift.git', :tag => s.version.to_s }
   s.social_media_url = 'https://twitter.com/auth0'
 
   s.ios.deployment_target = '9.0'
@@ -72,5 +72,5 @@ Pod::Spec.new do |s|
   s.tvos.exclude_files = web_auth_files
   s.tvos.dependency 'SimpleKeychain'
 
-  s.swift_version = '4.0'
+  s.swift_version = '5.0'
 end
