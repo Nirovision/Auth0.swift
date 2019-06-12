@@ -23,7 +23,6 @@
 import UIKit
 import SafariServices
 
-@available(iOSApplicationExtension, unavailable)
 class SafariWebAuth: WebAuth {
 
     fileprivate static let NoBundleIdentifier = "com.auth0.this-is-no-bundle"

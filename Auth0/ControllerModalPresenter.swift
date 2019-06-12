@@ -22,11 +22,14 @@
 
 import UIKit
 
-@available(iOSApplicationExtension, unavailable)
 struct ControllerModalPresenter {
 
     var rootViewController: UIViewController? {
-        return UIApplication.shared.keyWindow?.rootViewController
+        if #available(iOSApplicationExtension 9, *) {
+            return nil
+        } else {
+            return UIApplication.shared.keyWindow?.rootViewController
+        }
     }
 
     func present(controller: UIViewController) {
