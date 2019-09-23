@@ -44,11 +44,11 @@ class SafariAuthenticationSessionCallback: NSObject, AuthTransaction {
                 self.callback(url != nil)
                 TransactionStore.shared.clear()
             }
-            #if swift(>=5.1)
-            if #available(iOS 13.0, *) {
-                authSession.presentationContextProvider = self
-            }
-            #endif
+//            #if swift(>=5.1)
+//            if #available(iOS 13.0, *) {
+//                authSession.presentationContextProvider = self
+//            }
+//            #endif
             self.authSession = authSession
             authSession.start()
         } else {

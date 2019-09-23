@@ -83,11 +83,11 @@ class SafariAuthenticationSession: AuthSession {
                 }
                 _ = TransactionStore.shared.resume(callbackURL, options: [:])
             }
-            #if swift(>=5.1)
-            if #available(iOS 13.0, *) {
-                webAuthenticationSession.presentationContextProvider = self
-            }
-            #endif
+//            #if swift(>=5.1)
+//            if #available(iOS 13.0, *) {
+//                webAuthenticationSession.presentationContextProvider = self
+//            }
+//            #endif
             authSession = .init(webAuthenticationSession)
         } else {
             authSession = .init(SFAuthenticationSession(url: authorizeURL, callbackURLScheme: self.redirectURL.absoluteString) { [unowned self] in
