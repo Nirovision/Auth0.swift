@@ -80,15 +80,11 @@ class SafariAuthenticationSessionCallback: NSObject, AuthTransaction {
 }
 #endif
 
-#if swift(>=5.1)
-@available(iOS 13.0, *)
-extension SafariAuthenticationSessionCallback: ASWebAuthenticationPresentationContextProviding {
-    func presentationAnchor(for session: ASWebAuthenticationSession) -> ASPresentationAnchor? {
-        if #available(iOSApplicationExtension 9, *) {
-            return nil
-        } else {
-            return UIApplication.shared.keyWindow ?? ASPresentationAnchor()
-        }
-    }
-}
-#endif
+//#if swift(>=5.1)
+//@available(iOS 13.0, *)
+//extension SafariAuthenticationSessionCallback: ASWebAuthenticationPresentationContextProviding {
+//    func presentationAnchor(for session: ASWebAuthenticationSession) -> ASPresentationAnchor {
+//        return UIApplication.shared.keyWindow ?? ASPresentationAnchor()
+//    }
+//}
+//#endif
