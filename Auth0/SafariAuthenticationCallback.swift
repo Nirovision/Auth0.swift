@@ -44,11 +44,11 @@ class SafariAuthenticationSessionCallback: NSObject, AuthTransaction {
                 self.callback(url != nil)
                 TransactionStore.shared.clear()
             }
-//            #if swift(>=5.1)
-//            if #available(iOS 13.0, *) {
-//                authSession.presentationContextProvider = self
-//            }
-//            #endif
+            #if swift(>=5.1)
+            if #available(iOS 13.0, *) {
+                authSession.presentationContextProvider = self
+            }
+            #endif
             self.authSession = authSession
             authSession.start()
         } else {
@@ -80,11 +80,15 @@ class SafariAuthenticationSessionCallback: NSObject, AuthTransaction {
 }
 #endif
 
-//#if swift(>=5.1)
-//@available(iOS 13.0, *)
-//extension SafariAuthenticationSessionCallback: ASWebAuthenticationPresentationContextProviding {
-//    func presentationAnchor(for session: ASWebAuthenticationSession) -> ASPresentationAnchor {
-//        return UIApplication.shared.keyWindow ?? ASPresentationAnchor()
-//    }
-//}
-//#endif
+#if swift(>=5.1)
+@available(iOS 13.0, *)
+extension SafariAuthenticationSessionCallback: ASWebAuthenticationPresentationContextProviding {
+    func presentationAnchor(for session: ASWebAuthenticationSession) -> ASPresentationAnchor {
+        if #available(iOSApplicationExtension 9, *) {
+            return ASPresentationAnchor()
+        } else {
+            return Application.shared.keyWindow ?? ASPresentationAnchor()
+        }
+    }
+}
+#endif
