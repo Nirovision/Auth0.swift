@@ -1,6 +1,6 @@
-// SilentSafariViewController.swift
+// CryptoExtensions.swift
 //
-// Copyright (c) 2017 Auth0 (http://auth0.com)
+// Copyright (c) 2019 Auth0 (http://auth0.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -20,26 +20,26 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-import UIKit
-import SafariServices
+import Foundation
+import Security
 
-class SilentSafariViewController: SFSafariViewController, SFSafariViewControllerDelegate {
-    var onResult: (Bool) -> Void = { _ in }
+@testable import Auth0
 
-    required init(url URL: URL, callback: @escaping (Bool) -> Void) {
-        if #available(iOS 11.0, *) {
-            super.init(url: URL, configuration: SFSafariViewController.Configuration())
-        } else {
-            super.init(url: URL, entersReaderIfAvailable: false)
-        }
-
-        self.onResult = callback
-        self.delegate = self
-        self.view.alpha = 0.05 // Apple does not allow invisible SafariViews, this is the threshold.
-        self.modalPresentationStyle = .overCurrentContext
+extension SecKey {
+    func export() -> Data {
+        return SecKeyCopyExternalRepresentation(self, nil)! as Data
     }
+}
 
-    func safariViewController(_ controller: SFSafariViewController, didCompleteInitialLoad didLoadSuccessfully: Bool) {
-        controller.dismiss(animated: false) { self.onResult(didLoadSuccessfully) }
+extension JWTAlgorithm {
+    func sign(value: Data, key: SecKey = TestKeys.rsaPrivate) -> Data {
+        switch self {
+        case .rs256:
+            let sha256 = A0SHA()
+            let rsa = A0RSA(key: key)!
+            
+            return rsa.sign(sha256.hash(value))
+        case .hs256: return value
+        }
     }
 }

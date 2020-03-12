@@ -176,6 +176,17 @@ class WebAuthSpec: QuickSpec {
                     "query": defaultQuery(withParameters: ["nonce": "abc1234", "response_type" : "id_token"]),
                     ]
             }
+            
+            itBehavesLike(ValidAuthorizeURLExample) {
+                return [
+                    "url": newWebAuth()
+                        .responseType([.idToken])
+                        .maxAge(10000) // 1 second
+                        .buildAuthorizeURL(withRedirectURL: RedirectURL, defaults: defaults, state: "state"),
+                    "domain": Domain,
+                    "query": defaultQuery(withParameters: ["max_age": "10000", "response_type" : "id_token"]),
+                    ]
+            }
 
             itBehavesLike(ValidAuthorizeURLExample) {
                 var newDefaults = defaults
@@ -254,6 +265,10 @@ class WebAuthSpec: QuickSpec {
             it("should build with universal link") {
                 let bundleId = Bundle.main.bundleIdentifier!
                 expect(newWebAuth().useUniversalLink().redirectURL?.absoluteString) == "https://\(Domain)/ios/\(bundleId)/callback"
+            }
+
+            it("should build with a custom url") {
+                expect(newWebAuth().redirectURL(RedirectURL).redirectURL) == RedirectURL
             }
 
         }
@@ -348,7 +363,6 @@ class WebAuthSpec: QuickSpec {
 
         describe("logout") {
 
-            #if swift(>=3.2)
             context("SFAuthenticationSession") {
 
                 var outcome: Bool?
@@ -384,15 +398,12 @@ class WebAuthSpec: QuickSpec {
                 }
 
             }
-            #endif
 
             context("SFSafariViewController") {
 
                 it("should launch silent safari viewcontroller") {
                     let auth = newWebAuth()
-                    #if swift(>=3.2)
                     _ = auth.useLegacyAuthentication()
-                    #endif
                     auth.clearSession(federated: false) { _ in }
                     expect(auth.presenter.topViewController is SilentSafariViewController).toNot(beNil())
                 }

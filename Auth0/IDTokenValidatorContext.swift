@@ -1,6 +1,6 @@
-// SilentSafariViewController.swift
+// IDTokenValidatorContext.swift
 //
-// Copyright (c) 2017 Auth0 (http://auth0.com)
+// Copyright (c) 2020 Auth0 (http://auth0.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -20,26 +20,36 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-import UIKit
-import SafariServices
+import Foundation
 
-class SilentSafariViewController: SFSafariViewController, SFSafariViewControllerDelegate {
-    var onResult: (Bool) -> Void = { _ in }
+struct IDTokenValidatorContext: IDTokenSignatureValidatorContext, IDTokenClaimsValidatorContext {
+    let issuer: String
+    let audience: String
+    let jwksRequest: Request<JWKS, AuthenticationError>
+    let nonce: String?
+    let leeway: Int
+    let maxAge: Int?
 
-    required init(url URL: URL, callback: @escaping (Bool) -> Void) {
-        if #available(iOS 11.0, *) {
-            super.init(url: URL, configuration: SFSafariViewController.Configuration())
-        } else {
-            super.init(url: URL, entersReaderIfAvailable: false)
-        }
-
-        self.onResult = callback
-        self.delegate = self
-        self.view.alpha = 0.05 // Apple does not allow invisible SafariViews, this is the threshold.
-        self.modalPresentationStyle = .overCurrentContext
+    init(issuer: String,
+         audience: String,
+         jwksRequest: Request<JWKS, AuthenticationError>,
+         leeway: Int,
+         maxAge: Int?,
+         nonce: String?) {
+        self.issuer = issuer
+        self.audience = audience
+        self.jwksRequest = jwksRequest
+        self.leeway = leeway
+        self.maxAge = maxAge
+        self.nonce = nonce
     }
 
-    func safariViewController(_ controller: SFSafariViewController, didCompleteInitialLoad didLoadSuccessfully: Bool) {
-        controller.dismiss(animated: false) { self.onResult(didLoadSuccessfully) }
+    init(authentication: Authentication, leeway: Int, maxAge: Int?, nonce: String?) {
+        self.init(issuer: "\(authentication.url.absoluteString)/",
+                  audience: authentication.clientId,
+                  jwksRequest: authentication.jwks(),
+                  leeway: leeway,
+                  maxAge: maxAge,
+                  nonce: nonce)
     }
 }

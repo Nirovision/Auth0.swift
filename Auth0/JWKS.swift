@@ -1,6 +1,6 @@
-// SilentSafariViewController.swift
+// JWKS.swift
 //
-// Copyright (c) 2017 Auth0 (http://auth0.com)
+// Copyright (c) 2019 Auth0 (http://auth0.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -20,26 +20,38 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-import UIKit
-import SafariServices
+import Foundation
 
-class SilentSafariViewController: SFSafariViewController, SFSafariViewControllerDelegate {
-    var onResult: (Bool) -> Void = { _ in }
+public struct JWKS: Codable {
+    let keys: [JWK]
+}
 
-    required init(url URL: URL, callback: @escaping (Bool) -> Void) {
-        if #available(iOS 11.0, *) {
-            super.init(url: URL, configuration: SFSafariViewController.Configuration())
-        } else {
-            super.init(url: URL, entersReaderIfAvailable: false)
-        }
-
-        self.onResult = callback
-        self.delegate = self
-        self.view.alpha = 0.05 // Apple does not allow invisible SafariViews, this is the threshold.
-        self.modalPresentationStyle = .overCurrentContext
+public extension JWKS {
+    func key(id kid: String) -> JWK? {
+        return keys.first { $0.keyId == kid }
     }
+}
 
-    func safariViewController(_ controller: SFSafariViewController, didCompleteInitialLoad didLoadSuccessfully: Bool) {
-        controller.dismiss(animated: false) { self.onResult(didLoadSuccessfully) }
+public struct JWK: Codable {
+    let keyType: String
+    let keyId: String?
+    let usage: String?
+    let algorithm: String?
+    let certUrl: String?
+    let certThumbprint: String?
+    let certChain: [String]?
+    let rsaModulus: String?
+    let rsaExponent: String?
+
+    enum CodingKeys: String, CodingKey {
+        case keyType = "kty"
+        case keyId = "kid"
+        case usage = "use"
+        case algorithm = "alg"
+        case certUrl = "x5u"
+        case certThumbprint = "x5t"
+        case certChain = "x5c"
+        case rsaModulus = "n"
+        case rsaExponent = "e"
     }
 }

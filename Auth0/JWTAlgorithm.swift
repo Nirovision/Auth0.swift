@@ -1,6 +1,6 @@
-// SilentSafariViewController.swift
+// JWTAlgorithm.swift
 //
-// Copyright (c) 2017 Auth0 (http://auth0.com)
+// Copyright (c) 2020 Auth0 (http://auth0.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -20,26 +20,25 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-import UIKit
-import SafariServices
+import Foundation
+import JWTDecode
 
-class SilentSafariViewController: SFSafariViewController, SFSafariViewControllerDelegate {
-    var onResult: (Bool) -> Void = { _ in }
+enum JWTAlgorithm: String {
+    case rs256 = "RS256"
+    case hs256 = "HS256"
 
-    required init(url URL: URL, callback: @escaping (Bool) -> Void) {
-        if #available(iOS 11.0, *) {
-            super.init(url: URL, configuration: SFSafariViewController.Configuration())
-        } else {
-            super.init(url: URL, entersReaderIfAvailable: false)
+    func verify(_ jwt: JWT, using jwk: JWK) -> Bool {
+        let separator = "."
+        let parts = jwt.string.components(separatedBy: separator).dropLast().joined(separator: separator)
+        guard let data = parts.data(using: .utf8),
+            let signature = jwt.signature?.a0_decodeBase64URLSafe(),
+            !signature.isEmpty else { return false }
+        switch self {
+        case .rs256:
+            guard let publicKey = jwk.rsaPublicKey, let rsa = A0RSA(key: publicKey) else { return false }
+            let sha256 = A0SHA()
+            return rsa.verify(sha256.hash(data), signature: signature)
+        case .hs256: return true
         }
-
-        self.onResult = callback
-        self.delegate = self
-        self.view.alpha = 0.05 // Apple does not allow invisible SafariViews, this is the threshold.
-        self.modalPresentationStyle = .overCurrentContext
-    }
-
-    func safariViewController(_ controller: SFSafariViewController, didCompleteInitialLoad didLoadSuccessfully: Bool) {
-        controller.dismiss(animated: false) { self.onResult(didLoadSuccessfully) }
     }
 }

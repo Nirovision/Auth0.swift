@@ -1,6 +1,6 @@
-// SilentSafariViewController.swift
+// A0SHA.m
 //
-// Copyright (c) 2017 Auth0 (http://auth0.com)
+// Copyright (c) 2016 Auth0 (http://auth0.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -20,26 +20,42 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-import UIKit
-import SafariServices
+#import <A0SHA.h>
+#import <CommonCrypto/CommonHMAC.h>
 
-class SilentSafariViewController: SFSafariViewController, SFSafariViewControllerDelegate {
-    var onResult: (Bool) -> Void = { _ in }
+static NSString * const kDefaultSHAAlgorithm = @"sha256";
 
-    required init(url URL: URL, callback: @escaping (Bool) -> Void) {
-        if #available(iOS 11.0, *) {
-            super.init(url: URL, configuration: SFSafariViewController.Configuration())
+@interface A0SHA ()
+@property (readonly, nonatomic) NSInteger digestLength;
+@end
+
+@implementation A0SHA
+
+- (instancetype)initWithAlgorithm:(NSString *)algorithm {
+    self = [super init];
+    if (self) {
+        const NSString * alg = algorithm.lowercaseString;
+        if ([kDefaultSHAAlgorithm  isEqual: alg]) {
+            _digestLength = CC_SHA256_DIGEST_LENGTH;
         } else {
-            super.init(url: URL, entersReaderIfAvailable: false)
+            return nil;
         }
-
-        self.onResult = callback
-        self.delegate = self
-        self.view.alpha = 0.05 // Apple does not allow invisible SafariViews, this is the threshold.
-        self.modalPresentationStyle = .overCurrentContext
     }
-
-    func safariViewController(_ controller: SFSafariViewController, didCompleteInitialLoad didLoadSuccessfully: Bool) {
-        controller.dismiss(animated: false) { self.onResult(didLoadSuccessfully) }
-    }
+    return self;
 }
+
+- (instancetype)init {
+    return [self initWithAlgorithm: kDefaultSHAAlgorithm];
+}
+
+- (NSData *)hash:(NSData *)data {
+    uint8_t hashBytes[self.digestLength];
+    memset(hashBytes, 0x0, self.digestLength);
+
+    CC_SHA256(data.bytes, (CC_LONG)data.length, hashBytes);
+
+    NSData *hash = [NSData dataWithBytes:hashBytes length:self.digestLength];
+    return hash;
+}
+
+@end

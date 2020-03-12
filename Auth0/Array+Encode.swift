@@ -1,6 +1,6 @@
-// SilentSafariViewController.swift
+// Array+Encode.swift
 //
-// Copyright (c) 2017 Auth0 (http://auth0.com)
+// Copyright (c) 2019 Auth0 (http://auth0.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -20,26 +20,21 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-import UIKit
-import SafariServices
+import Foundation
 
-class SilentSafariViewController: SFSafariViewController, SFSafariViewControllerDelegate {
-    var onResult: (Bool) -> Void = { _ in }
-
-    required init(url URL: URL, callback: @escaping (Bool) -> Void) {
-        if #available(iOS 11.0, *) {
-            super.init(url: URL, configuration: SFSafariViewController.Configuration())
+extension Array where Element == UInt8 {
+    func a0_derEncode(as dataType: UInt8) -> [UInt8] {
+        var encodedBytes: [UInt8] = [dataType]
+        var numberOfBytes = count
+        if numberOfBytes < 128 {
+            encodedBytes.append(UInt8(numberOfBytes))
         } else {
-            super.init(url: URL, entersReaderIfAvailable: false)
+            let lengthData = Data(bytes: &numberOfBytes, count: MemoryLayout.size(ofValue: numberOfBytes))
+            let lengthBytes = [UInt8](lengthData).filter({ $0 != 0 }).reversed()
+            encodedBytes.append(UInt8(truncatingIfNeeded: lengthBytes.count) | 0b10000000)
+            encodedBytes.append(contentsOf: lengthBytes)
         }
-
-        self.onResult = callback
-        self.delegate = self
-        self.view.alpha = 0.05 // Apple does not allow invisible SafariViews, this is the threshold.
-        self.modalPresentationStyle = .overCurrentContext
-    }
-
-    func safariViewController(_ controller: SFSafariViewController, didCompleteInitialLoad didLoadSuccessfully: Bool) {
-        controller.dismiss(animated: false) { self.onResult(didLoadSuccessfully) }
+        encodedBytes.append(contentsOf: self)
+        return encodedBytes
     }
 }

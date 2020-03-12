@@ -26,7 +26,6 @@ import SafariServices
 import AuthenticationServices
 #endif
 
-#if swift(>=3.2)
 @available(iOS 11.0, *)
 class SafariAuthenticationSession: AuthSession {
 
@@ -147,5 +146,4 @@ extension SafariAuthenticationSession: ASWebAuthenticationPresentationContextPro
         }
     }
 }
-#endif
 #endif

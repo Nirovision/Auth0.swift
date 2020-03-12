@@ -1,6 +1,6 @@
-// SilentSafariViewController.swift
+// IDTokenValidatorBaseSpec.swift
 //
-// Copyright (c) 2017 Auth0 (http://auth0.com)
+// Copyright (c) 2020 Auth0 (http://auth0.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -20,26 +20,24 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-import UIKit
-import SafariServices
+import Foundation
+import Quick
 
-class SilentSafariViewController: SFSafariViewController, SFSafariViewControllerDelegate {
-    var onResult: (Bool) -> Void = { _ in }
+@testable import Auth0
 
-    required init(url URL: URL, callback: @escaping (Bool) -> Void) {
-        if #available(iOS 11.0, *) {
-            super.init(url: URL, configuration: SFSafariViewController.Configuration())
-        } else {
-            super.init(url: URL, entersReaderIfAvailable: false)
-        }
-
-        self.onResult = callback
-        self.delegate = self
-        self.view.alpha = 0.05 // Apple does not allow invisible SafariViews, this is the threshold.
-        self.modalPresentationStyle = .overCurrentContext
-    }
-
-    func safariViewController(_ controller: SFSafariViewController, didCompleteInitialLoad didLoadSuccessfully: Bool) {
-        controller.dismiss(animated: false) { self.onResult(didLoadSuccessfully) }
-    }
+class IDTokenValidatorBaseSpec: QuickSpec {
+    let domain = "tokens-test.auth0.com"
+    let clientId = "e31f6f9827c187e8aebdb0839a0c963a"
+    let nonce = "a1b2c3d4e5"
+    let leeway = 60 * 1000 // 60 seconds
+    let maxAge = 1000 // 1 second
+    
+    // Can't override the initWithInvocation: initializer, because NSInvocation is not available in Swift
+    lazy var authentication = Auth0.authentication(clientId: clientId, domain: domain)
+    lazy var validatorContext = IDTokenValidatorContext(issuer: "\(URL.a0_url(domain).absoluteString)/",
+                                                        audience: clientId,
+                                                        jwksRequest: authentication.jwks(),
+                                                        leeway: leeway,
+                                                        maxAge: maxAge,
+                                                        nonce: nonce)
 }
